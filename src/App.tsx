@@ -1,250 +1,80 @@
-import { useGSAP } from "@gsap/react";
+import { useRef, useEffect } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls, useGLTF } from "@react-three/drei";
 import gsap from "gsap";
-import { ScrollTrigger, SplitText } from "gsap/all";
-import Navigation from "./components/Navigation";
-import HeroSection from "./components/HeroSection";
-import AboutSection from "./components/AboutSection";
-import ServicesSection from "./components/ServicesSection";
-import PortfolioSection from "./components/PortfolioSection";
-import ContactSection from "./components/ContactSection";
-import Footer from "./components/Footer";
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+// Phone model component
+function PhoneModel() {
+  const { scene } = useGLTF("/models/iphone.glb");
+  const ref = useRef<any>();
 
-function App() {
-  useGSAP(() => {
-    // Hero text animation with split text
-    const heroText = new SplitText("#hero-text", { type: "chars, words" });
-    const heroSubtitle = new SplitText("#hero-subtitle", { type: "words" });
-
-    // Initial state - hide everything
-    gsap.set(
-      [
-        heroText.chars,
-        heroSubtitle.words,
-        "#cta-button",
-        ".blob",
-        ".section-content",
-      ],
-      {
-        opacity: 0,
-        y: 100,
-      }
-    );
-
-    // Main timeline
-    const tl = gsap.timeline();
-
-    // Animate hero text characters with stagger
-    tl.to(heroText.chars, {
-      duration: 0.8,
-      opacity: 1,
-      y: 0,
-      ease: "back.out(1.7)",
-      stagger: 0.05,
-    })
-      .to(
-        heroSubtitle.words,
-        {
-          duration: 1,
-          opacity: 1,
-          y: 0,
-          ease: "power3.out",
-          stagger: 0.1,
-        },
-        "-=0.3"
-      )
-      .to(
-        "#cta-button",
-        {
-          duration: 0.8,
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          ease: "back.out(1.7)",
-        },
-        "-=0.5"
-      )
-      .to(
-        ".blob",
-        {
-          duration: 1.2,
-          opacity: 1,
-          scale: 1,
-          rotation: 360,
-          ease: "power2.out",
-          stagger: 0.2,
-        },
-        "-=0.8"
-      );
-
-    // Floating animation for blobs
-    gsap.to(".blob", {
-      y: -20,
-      duration: 3,
-      ease: "power1.inOut",
-      stagger: 0.5,
-      repeat: -1,
-      yoyo: true,
-    });
-
-    // Parallax effect for background elements
-    gsap.to("#noise-bg", {
-      y: -50,
-      duration: 20,
-      ease: "none",
-      repeat: -1,
-      yoyo: true,
-    });
-
-    // Mouse follow effect for main blob
-    const blob = document.querySelector("#main-blob");
-    if (blob) {
-      window.addEventListener("mousemove", (e) => {
-        const x = (e.clientX / window.innerWidth - 0.5) * 50;
-        const y = (e.clientY / window.innerHeight - 0.5) * 50;
-        gsap.to(blob, {
-          x: x,
-          y: y,
-          duration: 1,
-          ease: "power2.out",
-        });
-      });
+  // Idle rotation
+  useFrame(() => {
+    if (ref.current) {
+      ref.current.rotation.y += 0.003;
     }
-
-    // Scroll-triggered animations for sections
-    gsap.utils.toArray(".section-content").forEach((section) => {
-      const elements = (section as Element).querySelectorAll(
-        ".animate-on-scroll"
-      );
-
-      ScrollTrigger.create({
-        trigger: elements,
-        start: "top 80%",
-        end: "bottom 20%",
-        onEnter: () => {
-          gsap.to(elements, {
-            duration: 1,
-            opacity: 1,
-            y: 0,
-            stagger: 0.2,
-            ease: "power3.out",
-          });
-        },
-        onLeave: () => {
-          gsap.to(elements, {
-            duration: 0.5,
-            opacity: 0,
-            y: 50,
-          });
-        },
-        onEnterBack: () => {
-          gsap.to(elements, {
-            duration: 1,
-            opacity: 1,
-            y: 0,
-            stagger: 0.2,
-            ease: "power3.out",
-          });
-        },
-      });
-    });
-
-    // Parallax scroll effect for hero
-    ScrollTrigger.create({
-      trigger: "#hero-section",
-      start: "top top",
-      end: "bottom top",
-      onUpdate: (self) => {
-        const progress = self.progress;
-        gsap.to("#hero-text", {
-          y: progress * -100,
-          opacity: 1 - progress * 0.3,
-          duration: 0.1,
-        });
-      },
-    });
-
-    // Random character animation for navbar links
-    const navLinks = document.querySelectorAll(".nav-link");
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
-
-    navLinks.forEach((link) => {
-      const originalText = link.textContent || "";
-      let animationId: number;
-
-      link.addEventListener("mouseenter", () => {
-        let iterations = 0;
-
-        const animate = () => {
-          link.textContent = originalText
-            .split("")
-            .map((char, index) => {
-              if (index < iterations) {
-                return originalText[index];
-              }
-              return characters[Math.floor(Math.random() * characters.length)];
-            })
-            .join("");
-
-          if (iterations >= originalText.length) {
-            clearTimeout(animationId);
-            return;
-          }
-
-          iterations += 1 / 3;
-          animationId = setTimeout(animate, 50);
-        };
-
-        animate();
-      });
-
-      link.addEventListener("mouseleave", () => {
-        clearTimeout(animationId);
-        link.textContent = originalText;
-      });
-    });
-
-    // Counter animation for stats
-    const counters = document.querySelectorAll(".counter");
-    counters.forEach((counter) => {
-      const target = parseInt(counter.getAttribute("data-target") || "0");
-      const duration = 2;
-
-      ScrollTrigger.create({
-        trigger: counter,
-        start: "top 80%",
-        onEnter: () => {
-          gsap.to(counter, {
-            duration: duration,
-            innerHTML: target,
-            snap: { innerHTML: 1 },
-            ease: "power2.out",
-          });
-        },
-      });
-    });
   });
 
+  // GSAP entry animation
+  useEffect(() => {
+    if (ref.current) {
+      gsap.from(ref.current.position, {
+        y: -2,
+        duration: 1.2,
+        ease: "power3.out",
+      });
+      gsap.from(ref.current.scale, {
+        x: 0,
+        y: 0,
+        z: 0,
+        duration: 1.2,
+        ease: "back.out(1.7)",
+      });
+    }
+  }, []);
+
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-x-hidden">
-      {/* Noisy Background */}
-      <div
-        id="noise-bg"
-        className="fixed inset-0 opacity-10 pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-        }}
-      />
-      <Navigation />
-      <HeroSection />
-      <AboutSection />
-      <ServicesSection />
-      <PortfolioSection />
-      <ContactSection />
-      <Footer />
-    </div>
+    <primitive
+      ref={ref}
+      object={scene}
+      scale={2}
+      position={[0, 0.5, 0]} // moved up (was -1.2 before)
+      rotation={[0.1, Math.PI / 4, 0]}
+    />
   );
 }
 
-export default App;
+export default function HeroSection() {
+  return (
+    <section className="relative w-full h-screen flex flex-col lg:flex-row items-center justify-between px-8 lg:px-20 bg-gradient-to-b from-white to-gray-100">
+      {/* Left content */}
+      <div className="z-10 max-w-xl text-center lg:text-left space-y-6">
+        <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
+          Experience the Future of Mobile
+        </h1>
+        <p className="text-lg text-gray-600 max-w-md mx-auto lg:mx-0">
+          A sleek new design, cutting-edge performance, and immersive 3D
+          experience. This is the phone you’ve been waiting for.
+        </p>
+        <div className="flex gap-4 justify-center lg:justify-start">
+          <button className="px-6 py-3 rounded-2xl bg-blue-600 text-white font-semibold shadow-lg hover:bg-blue-700 transition">
+            Pre-Order Now
+          </button>
+          <button className="px-6 py-3 rounded-2xl border border-gray-300 text-gray-800 font-semibold hover:bg-gray-100 transition">
+            Learn More
+          </button>
+        </div>
+      </div>
+
+      {/* 3D model */}
+      <div className="absolute lg:static right-0 bottom-0 w-full h-[500px] lg:w-[600px] lg:h-[600px]">
+        <Canvas camera={{ position: [0, 0, 6], fov: 42 }}>
+          <ambientLight intensity={0.6} />
+          <directionalLight position={[5, 5, 5]} intensity={1.2} />
+          <PhoneModel />
+          <OrbitControls enableZoom={false} enablePan={false} />
+        </Canvas>
+      </div>
+    </section>
+  );
+}

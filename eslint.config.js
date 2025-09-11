@@ -22,6 +22,7 @@ export default tseslint.config([
     rules: {
       "react/react-in-jsx-scope": "off",
       "unused-imports/no-unused-imports": "off",
+      "unused-imports/no-unused-vars": "off",
     },
   },
 ]);
