@@ -50,21 +50,19 @@ export default function Three() {
       new BoxGeometry(3, 3, 3),
       new MeshBasicMaterial({ map: paulTexture })
     );
-    paul.position.x = 20;
-    paul.position.y = 20;
+    paul.position.set(5, 0, 0);
 
     const moonTexture = new TextureLoader().load("/moon.jpg");
     const normalTexture = new TextureLoader().load("/normal.jpg");
     const moon = new Mesh(
-      new SphereGeometry(3, 32, 32),
+      new SphereGeometry(2, 32, 32),
       new MeshStandardMaterial({ map: moonTexture, normalMap: normalTexture })
     );
-    moon.position.setX(-10);
-    moon.position.setZ(30);
+    moon.position.set(-5, 4, 0);
 
     scene.add(moon);
     scene.add(paul);
-    const geometry = new TorusGeometry(7, 3, 16, 100);
+    const geometry = new TorusGeometry(3, 0.4, 100, 16);
     const material = new MeshStandardMaterial({
       color: "#FF3322",
       wireframe: false,
@@ -98,12 +96,12 @@ export default function Three() {
 
     function moveCamera() {
       const t = document.body.getBoundingClientRect().top;
-      moon.position.setX(+0.1);
-      moon.position.setZ(+0.1);
-      moon.position.setY(+0.1);
+      moon.position.x += 0.001;
+      moon.position.z += 0.005;
+      moon.position.y += 0.01;
 
-      paul.position.setX(+0.2);
-      paul.position.setY(+0.02);
+      // paul.position.x += 0.2;
+      // paul.position.y += 0.02;
 
       camera.position.x = t * -0.001;
       camera.position.y = t * -0.02;
