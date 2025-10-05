@@ -3,10 +3,13 @@ import { useGSAP } from "@gsap/react";
 import ScrambleTextPlugin from "gsap/ScrambleTextPlugin";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowDown } from "lucide-react";
-
+import { useScrollDirection } from "../hooks/useScrollDirection";
 gsap.registerPlugin(useGSAP, ScrambleTextPlugin, ScrollTrigger);
 const METALLIC_OBJECT_URL = "https://i.imgur.com/GzIxFz7.png";
+
 const Redesign = () => {
+  const scrollDirection = useScrollDirection();
+
   useGSAP(() => {
     gsap.to("img", {
       y: -4,
@@ -84,7 +87,11 @@ const Redesign = () => {
 
   return (
     <div className="min-h-screen w-full bg-black">
-      <nav className="flex items-start px-4 py-2.5 gap-32 lg:gap-64 h-16 w-full uppercase text-sm sticky top-0 z-50">
+      <nav
+        className={`fixed top-0 left-0 w-full h-16 flex items-start px-4 py-2.5 gap-32 lg:gap-64 uppercase text-sm transition-transform duration-300 ${
+          scrollDirection === "down" ? "-translate-y-full" : "translate-y-0"
+        }`}
+      >
         <div className="relative group inline-block overflow-hidden">
           <a className="relative z-10 text-white group-hover:text-black py-1 transition-colors ease-in cursor-pointer">
             Home
@@ -110,10 +117,10 @@ const Redesign = () => {
           <div className="absolute inset-0 bg-white z-0 transform translate-y-full transition-transform duration-300 group-hover:translate-y-0" />
         </div>
       </nav>
-      <div className="flex flex-col items-center justify-center main-section w-full pb-24">
+      <div className="flex flex-col items-center justify-center main-section w-full pb-24 pt-12">
         <div className="flex items-center px-4 uppercase text-white w-full">
-          <div className="text-xs scramble w-[190px]">
-            A Collection of Visual Studios
+          <div className="text-xs scramble w-[219px]">
+            Collection of Visual Studios
           </div>
           <div className="relative w-[500px] h-[500px] flex items-start justify-center flex-1">
             <img
